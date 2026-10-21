@@ -2,10 +2,11 @@ package de.nuskha.keyboard;
 import android.inputmethodservice.InputMethodService;import android.view.*;import android.webkit.*;import android.speech.*;import android.os.*;import android.content.*;import java.util.*;
 public class NuskhaIME extends InputMethodService {
  WebView web; SpeechRecognizer sr;
- public View onCreateInputView(){web=new WebView(this);web.setBackgroundColor(0xff161718);web.getSettings().setJavaScriptEnabled(true);web.getSettings().setDomStorageEnabled(true);web.getSettings().setAllowFileAccess(false);web.addJavascriptInterface(new Bridge(),"Nuskha");web.setLayoutParams(new ViewGroup.LayoutParams(-1,(int)(392*getResources().getDisplayMetrics().density)));web.loadUrl("file:///android_asset/app.html?keyboard=1");return web;}
+ public View onCreateInputView(){web=new WebView(this);web.setBackgroundColor(0xff161718);web.getSettings().setJavaScriptEnabled(true);web.getSettings().setDomStorageEnabled(true);web.getSettings().setAllowFileAccess(false);web.addJavascriptInterface(new Bridge(),"Nuskha");web.setLayoutParams(new ViewGroup.LayoutParams(-1,(int)(444*getResources().getDisplayMetrics().density)));web.loadUrl("file:///android_asset/app.html?keyboard=1");return web;}
  void state(String s){web.evaluateJavascript("nativeStatus("+org.json.JSONObject.quote(s)+")",null);}
  public class Bridge{
  @JavascriptInterface public void insert(String s){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().commitText(s,1);});}
+ @JavascriptInterface public void eraseN(int n){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().deleteSurroundingTextInCodePoints(Math.max(1,n),0);});}
  @JavascriptInterface public void erase(){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().deleteSurroundingTextInCodePoints(1,0);});}
  @JavascriptInterface public void voice(){new Handler(getMainLooper()).post(()->startVoice());}
  @JavascriptInterface public int cleanHasKey(){return CleanupClient.hasKey(NuskhaIME.this)?1:0;}

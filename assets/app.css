@@ -107,3 +107,7 @@
 .ime .actslot input{flex:1;margin:0;height:46px;border-radius:14px;font-size:14px;padding:0 13px;color:#f0f1ef}
 .ime .actslot .actbar button{width:46px;height:46px;flex:none;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:#e8eae8;font-size:15px;padding:0}
 .ime .actslot .strip{margin-top:7px}
+
+.sugs{display:flex;gap:6px;padding:2px 6px;min-height:36px;align-items:center}
+.sugs button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #2a2d2f;background:#1d2022;color:#e8e6e3;font-size:14px}
+body.ime .keys{padding-bottom:max(14px,env(safe-area-inset-bottom))}
