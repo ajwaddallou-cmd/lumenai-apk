@@ -8,7 +8,7 @@ public class NuskhaIME extends InputMethodService {
  @JavascriptInterface public void insert(String s){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().commitText(s,1);});}
  @JavascriptInterface public void eraseN(int n){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().deleteSurroundingTextInCodePoints(Math.max(1,n),0);});}
  @JavascriptInterface public void erase(){new Handler(getMainLooper()).post(()->{if(getCurrentInputConnection()!=null)getCurrentInputConnection().deleteSurroundingTextInCodePoints(1,0);});}
- @JavascriptInterface public void voice(){new Handler(getMainLooper()).post(()->startVoice());}
+ @JavascriptInterface public void voice(){new Handler(getMainLooper()).post(()->startVoice());}@JavascriptInterface public void stopVoice(){new Handler(getMainLooper()).post(()->{if(sr!=null)sr.stopListening();});}
  @JavascriptInterface public int cleanHasKey(){return CleanupClient.hasKey(NuskhaIME.this)?1:0;}
  @JavascriptInterface public void cleanSetKey(String k){try{CleanupClient.setKey(NuskhaIME.this,k);}catch(Exception e){}}
  @JavascriptInterface public void cleanClearKey(){CleanupClient.clearKey(NuskhaIME.this);}
