@@ -112,3 +112,5 @@
 .sugs button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #2a2d2f;background:#1d2022;color:#e8e6e3;font-size:14px}
 body.ime .keys{padding-bottom:max(14px,env(safe-area-inset-bottom))}
 .sugs button.undo{border-color:#8a5a2b;background:#2a2118}
+.pop{position:fixed;display:flex;gap:4px;padding:5px;background:#26292b;border:1px solid #3a3d3f;border-radius:10px;z-index:99}
+.pop button{min-width:38px;padding:8px 0;border-radius:7px;border:0;background:#1d2022;color:#e8e6e3;font-size:16px}
