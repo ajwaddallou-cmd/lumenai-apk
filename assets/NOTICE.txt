@@ -1,0 +1,7 @@
+Nuskha - Hinweise zu Drittkomponenten
+
+Wortliste fuer Vorschlaege/Korrektur:
+FrequencyWords (hermitdave/FrequencyWords), de_50k (OpenSubtitles2016-Korpus, OPUS).
+Inhalt lizenziert unter CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Quelle: https://github.com/hermitdave/FrequencyWords
+Die Liste wurde auf die 12.000 haeufigsten Woerter reduziert.

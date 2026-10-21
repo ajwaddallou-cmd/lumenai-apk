@@ -111,3 +111,4 @@
 .sugs{display:flex;gap:6px;padding:2px 6px;min-height:36px;align-items:center}
 .sugs button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #2a2d2f;background:#1d2022;color:#e8e6e3;font-size:14px}
 body.ime .keys{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.sugs button.undo{border-color:#8a5a2b;background:#2a2118}
