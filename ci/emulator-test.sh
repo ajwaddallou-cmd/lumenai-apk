@@ -5,6 +5,7 @@ adb wait-for-device
 for i in $(seq 1 60); do B=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r"); [ "$B" = "1" ] && break; sleep 5; done
 echo "boot_completed=$B"
 adb shell settings put global hide_error_dialogs 1 || true
+adb install -r build/Nuskha-preview.apk
 adb shell am start -n de.nuskha.keyboard/.MainActivity
 sleep 30
 adb shell input tap 110 430 || true
