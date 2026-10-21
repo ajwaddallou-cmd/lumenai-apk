@@ -15,7 +15,7 @@ jobs:
       - name: Emulator test
         uses: reactivecircus/android-emulator-runner@324029e2f414c084d8b15ba075288885e74aef9c
         with:
-          api-level: 31
+          api-level: 33
           target: default
           arch: x86_64
           script: bash ci/emulator-test.sh
