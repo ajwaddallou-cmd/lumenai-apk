@@ -1,0 +1,136 @@
+name: APK118 long diagnostics and retained state qualification
+'on':
+  workflow_dispatch: null
+permissions:
+  contents: read
+concurrency:
+  group: lumen-apk118-diagnostics
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+    - name: Verify the single signed test APK without sources or credentials
+      shell: bash
+      run: "set -euo pipefail\ncurl --fail --location --retry 2 --output candidate118.apk 'https://github.com/ajwaddallou-cmd/lumenai-apk/releases/download/lumen-v1.6.99-diagnostics-test/Lumen-1.6.99-Test.apk?native=118-2026'\n\
+        printf '%s  %s\\n' 'd4ddd2211b907039ad5980c2115864202e9bcdb66324743fe275ba609a3fb02c' candidate118.apk | sha256sum --check\ntest \"$(stat -c %s candidate118.apk)\" = 204391952\ntest -c /dev/kvm\n\
+        sudo chmod a+rw /dev/kvm\nsudo apt-get update -qq\nsudo apt-get install -y python3-plyvel\nmkdir -p /tmp/cloud114-classes /tmp/cloud114-dex\ncat > /tmp/CloudCache114Qualification.java <<'LUMEN_JAVA_TEST'\n\
+        package de.lumen.qualification;\nimport java.nio.file.*;import java.lang.reflect.*;import java.util.*;import org.json.*;\npublic final class CloudCache114Qualification {\n static Class<?> type;static\
+        \ int checks=0;\n static void yes(boolean v,String label){checks++;if(!v)throw new AssertionError(label);}\n static Object call(Object x,String method,Class<?>[] types,Object...args)throws Exception{try{return\
+        \ type.getMethod(method,types).invoke(x,args);}catch(InvocationTargetException e){throw (Exception)e.getCause();}}\n static String str(Object x,String m,String...args)throws Exception{Class<?>[]\
+        \ t=new Class<?>[args.length];Arrays.fill(t,String.class);return (String)call(x,m,t,(Object[])args);}\n static boolean set(Object x,String owner,String key,String value,boolean remove)throws Exception{return(Boolean)call(x,\"\
+        set\",new Class<?>[]{String.class,String.class,String.class,boolean.class},owner,key,value,remove);}\n public static void main(String[] args)throws Exception{\n  Class<?> dc=Class.forName(\"de.lumen.planner.NativeDiagnostics\"\
+        );Object dg=dc.getConstructor().newInstance();Method event=dc.getMethod(\"event\",String.class,String.class,int.class,int.class),report=dc.getMethod(\"report\",String.class,int.class);String secret=\"\
+        CANARY_PRIVATE_TOKEN_EMAIL_PLANNER\";event.invoke(dg,secret,secret,99999999,999);event.invoke(dg,\"auth-failed\",\"cloud-start.js\",17,401);Throwable failure=new RuntimeException(secret);failure.setStackTrace(new\
+        \ StackTraceElement[]{new StackTraceElement(\"de.lumen.planner.MainActivity\",secret,\"MainActivity.java\",77),new StackTraceElement(secret,secret,secret,1)});dc.getMethod(\"failure\",Throwable.class).invoke(dg,failure);String\
+        \ safe=(String)report.invoke(dg,\"1.6.99 (118)\",35);yes(!safe.contains(secret),\"diagnostics-native-canary-excluded\");yes(safe.contains(\"auth-failed\")&&safe.contains(\"HTTP 401\")&&safe.contains(\"\
+        cloud-start.js:17\")&&safe.contains(\"MainActivity.java:77\"),\"diagnostics-own-stack-status\");yes(!((String)report.invoke(dg,secret,35)).contains(secret),\"diagnostics-version-whitelist\");for(int\
+        \ n=0;n<100;n++)event.invoke(dg,\"cloud-ok\",\"cloud.js\",1,200);yes(((String)report.invoke(dg,\"1.6.99 (118)\",35)).split(\"\\n\").length<80,\"diagnostics-bounded-volatile-ring\");System.out.println(\"\
+        NATIVE_DIAGNOSTICS118_RESULT {\\\"pass\\\":true,\\\"canaryExcluded\\\":true,\\\"ownFrameCaptured\\\":true,\\\"bounded64\\\":true}\");\n  type=Class.forName(\"de.lumen.planner.NativeCloudCache\"\
+        );Path root=Paths.get(args[0]);Files.createDirectories(root);Path legacy=root.resolve(\"legacy\");Files.createDirectories(legacy);byte[] original=new byte[6*1024*1024];Arrays.fill(original,(byte)65);Files.write(legacy.resolve(\"\
+        full-browser-original\"),original);Files.write(legacy.resolve(\"broken-journal\"),\"{broken-preserve\".getBytes(\"UTF-8\"));\n  String id=\"11111111-1111-4111-8111-111111111114\",other=\"22222222-2222-4222-8222-222222222224\"\
+        ,key=\"lumen_v3_\"+id;\n  JSONObject state=new JSONObject(\"{\\\"name\\\":\\\"Synthetic cloud\\\",\\\"goals\\\":[],\\\"daily\\\":[],\\\"finance\\\":{\\\"income\\\":543},\\\"health\\\":{\\\"synthetic\\\
+        \":true},\\\"extra\\\":{\\\"kept\\\":true}}\");String session=new JSONObject().put(\"user\",new JSONObject().put(\"id\",id)).put(\"access_token\",\"synthetic-not-a-credential\").toString();JSONObject\
+        \ row=new JSONObject().put(\"user_id\",id).put(\"revision\",88).put(\"state\",state);\n  Object cache=type.getConstructor(Path.class).newInstance(root.resolve(\"cloud\"));yes(str(cache,\"context\"\
+        ).isEmpty(),\"no-unverified-context\");call(cache,\"open\",new Class<?>[]{String.class,String.class},session,row.toString());yes(new JSONObject(str(cache,\"context\")).getString(\"owner\").equals(id),\"\
+        verified-owner\");yes(new JSONObject(str(cache,\"get\",id,key)).getString(\"value\").equals(state.toString()),\"full-cloud-state\");yes(!new JSONObject(str(cache,\"get\",other,key)).getBoolean(\"\
+        ok\"),\"wrong-owner-read-refused\");yes(!set(cache,other,key,\"bad\",false),\"wrong-owner-write-refused\");JSONObject missing=new JSONObject(str(cache,\"get\",id,\"missing\"));yes(missing.getBoolean(\"\
+        ok\")&&!missing.getBoolean(\"present\")&&missing.isNull(\"value\"),\"explicit-absent-envelope\");\n  String journalKey=\"lumen_watch_isolated_boundary_\"+key,journal=new JSONObject(str(cache,\"\
+        get\",id,journalKey)).getString(\"value\");String changed=new JSONObject(state.toString()).put(\"name\",\"Synthetic changed\").toString();String receipt=str(cache,\"retain\",id,state.toString(),journal,changed,journal);yes(receipt.matches(\"\
+        [a-f0-9-]{36}\"),\"durable-retention-receipt\");yes(Files.exists(root.resolve(\"cloud\").resolve(id+\"-retained.json\")),\"before-copy-present\");yes(set(cache,id,key,changed,false),\"native-edit\"\
+        );yes(set(cache,id,key+\"_dirty\",\"1\",false),\"dirty-record\");\n  Object restarted=type.getConstructor(Path.class).newInstance(root.resolve(\"cloud\"));yes(str(restarted,\"context\").isEmpty(),\"\
+        restart-needs-server-auth\");yes(new JSONObject(str(restarted,\"savedSession\")).getJSONObject(\"user\").getString(\"id\").equals(id),\"session-restart\");call(restarted,\"open\",new Class<?>[]{String.class,String.class},session,new\
+        \ JSONObject(row.toString()).put(\"revision\",89).toString());yes(new JSONObject(str(restarted,\"get\",id,key)).getString(\"value\").equals(changed),\"unsynced-cache-not-replaced\");yes(new JSONObject(str(restarted,\"\
+        get\",id,key+\"_dirty\")).getString(\"value\").equals(\"1\"),\"dirty-retained\");\n  try{call(restarted,\"open\",new Class<?>[]{String.class,String.class},session,new JSONObject(row.toString()).put(\"\
+        user_id\",other).toString());throw new AssertionError(\"wrong-cloud-row-accepted\");}catch(java.io.IOException expected){checks++;}yes(new JSONObject(str(restarted,\"get\",id,key)).getString(\"\
+        value\").equals(changed),\"failed-open-no-overwrite\");\n  yes(!(Boolean)call(restarted,\"session\",new Class<?>[]{String.class},new JSONObject(session).put(\"user\",new JSONObject().put(\"id\"\
+        ,other)).toString()),\"session-owner-change-refused\");yes(str(restarted,\"retain\",id,\"incorrect-before\",journal,changed,journal).isEmpty(),\"retention-concurrency-refused\");\n  String pending=new\
+        \ JSONObject().put(\"flow\",\"synthetic_flow_12345678901234567890\").put(\"verifier\",String.join(\"\",Collections.nCopies(64,\"a\"))).put(\"lang\",\"de\").put(\"created\",123).toString();yes((Boolean)call(restarted,\"\
+        oauthStore\",new Class<?>[]{String.class},pending),\"pkce-independent-store\");yes(new JSONObject(str(restarted,\"oauthPending\")).getString(\"flow\").startsWith(\"synthetic_\"),\"pkce-read\");yes((Boolean)call(restarted,\"\
+        oauthClear\",new Class<?>[]{}),\"pkce-clear\");yes(str(restarted,\"oauthPending\").isEmpty(),\"pkce-consumed\");yes((Boolean)call(restarted,\"logout\",new Class<?>[]{}),\"logout-persisted\");yes(str(restarted,\"\
+        context\").isEmpty(),\"logout-context-cleared\");Object loggedOut=type.getConstructor(Path.class).newInstance(root.resolve(\"cloud\"));yes(new JSONObject(str(loggedOut,\"savedSession\")).getBoolean(\"\
+        signedOut\"),\"logout-tombstone-restart\");\n  yes(Arrays.equals(Files.readAllBytes(legacy.resolve(\"full-browser-original\")),original),\"old-full-browser-identical\");yes(new String(Files.readAllBytes(legacy.resolve(\"\
+        broken-journal\")),\"UTF-8\").equals(\"{broken-preserve\"),\"old-broken-journal-identical\");\n  System.out.println(\"NATIVE_CLOUD114_RESULT \"+new JSONObject().put(\"checks\",checks).put(\"pass\"\
+        ,true).put(\"actualAndroid\",true).put(\"productionClassFromExactApk\",true));\n }\n}\n\nLUMEN_JAVA_TEST\njavac -encoding UTF-8 -source 8 -target 8 -bootclasspath \"$ANDROID_HOME/platforms/android-35/android.jar\"\
+        \ -d /tmp/cloud114-classes /tmp/CloudCache114Qualification.java\njar cf /tmp/qualification114.jar -C /tmp/cloud114-classes .\nd8_jar=$(find \"$ANDROID_HOME/build-tools\" -path '*/lib/d8.jar' | sort\
+        \ -V | tail -1)\njava -cp \"$d8_jar\" com.android.tools.r8.D8 --min-api 26 --lib \"$ANDROID_HOME/platforms/android-35/android.jar\" --output /tmp/cloud114-dex /tmp/qualification114.jar\ncat > /tmp/lumen-candidate118-smoke.sh\
+        \ <<'LUMEN_RUNTIME_SETUP'\nset -euo pipefail\nadb shell getprop ro.product.cpu.abilist | tee /tmp/lumen-abis\ngrep -q arm64-v8a /tmp/lumen-abis\nadb root\nadb wait-for-device\ntest \"$(adb shell\
+        \ id -u | tr -d '\\r')\" = 0\nadb shell settings put global airplane_mode_on 1\nadb shell svc wifi disable\nadb shell svc data disable\nadb shell iptables -w -P OUTPUT DROP\nadb shell ip6tables\
+        \ -w -P OUTPUT DROP\nadb install --no-streaming candidate118.apk\nadb push candidate118.apk /data/local/tmp/candidate118.apk\nadb push /tmp/cloud114-dex/classes.dex /data/local/tmp/qualification114.dex\n\
+        adb shell 'CLASSPATH=/data/local/tmp/candidate118.apk:/data/local/tmp/qualification114.dex app_process /system/bin de.lumen.qualification.CloudCache114Qualification /data/local/tmp/diagnostics118-native-fixture'\n\
+        /usr/bin/python3 /tmp/lumen-candidate118.py\nadb install --no-streaming /tmp/long118/fixture-aligned.apk\n/usr/bin/python3 /tmp/long118-ui.py\nLUMEN_RUNTIME_SETUP\ncat > /tmp/lumen-candidate118.py\
+        \ <<'LUMEN_SYNTHETIC_PYTHON'\nimport os,sys,json,time,base64,hashlib,subprocess,shutil,re,shlex,struct,xml.etree.ElementTree as ET\nfrom pathlib import Path\nimport plyvel\nAPP='de.lumen.planner';ORIGIN=b'https://appassets.androidplatform.net';PREFIX=b'_'+ORIGIN+b'\\\
+        0';ROOT='/data/user/0/'+APP+'/app_webview/Default/Local Storage/leveldb';ARCHIVE='/data/user/0/'+APP+'/no_backup/planner-exact-archive-v1'\nOUT=Path('candidate118-observations');OUT.mkdir(exist_ok=True)\n\
+        def adb(*args,check=True):\n command=['adb','shell',shlex.join(args[1:])]if args and args[0]=='shell'else['adb',*args]\n r=subprocess.run(command,capture_output=True);s=r.stdout.decode(errors='replace')\n\
+        \ if check and r.returncode:raise RuntimeError('adb command failed: '+str(args[:3])+' '+r.stderr.decode(errors='replace')[:300])\n return s\ndef stop():adb('shell','am','force-stop',APP);time.sleep(1)\n\
+        def pull(where):\n if where.exists():shutil.rmtree(where)\n adb('pull',ROOT,str(where))\ndef strings(db):\n out={}\n for k,v in db:\n  if not k.startswith(PREFIX):continue\n  key=k[len(PREFIX):]\n\
+        \  if not key or key[0]not in(0,1)or not v or v[0]not in(0,1):raise RuntimeError('Unexpected Chromium encoding')\n  out[key[1:].decode('latin1'if key[0]==1 else'utf-16le')]=v[1:].decode('latin1'if\
+        \ v[0]==1 else'utf-16le')\n return out\ndef varint(n):\n b=bytearray()\n while n>127:b.append((n&127)|128);n>>=7\n b.append(n);return bytes(b)\ndef encoded(s):\n try:return b'\\1'+s.encode('latin1')\n\
+        \ except UnicodeEncodeError:return b'\\0'+s.encode('utf-16le')\ndef fingerprint(x):return {'present':x is not None,'bytes':len(x.encode())if x is not None else 0,'sha256':hashlib.sha256(x.encode()).hexdigest()if\
+        \ x is not None else None}\ndef dump():\n diagnostic=adb('shell','uiautomator','dump','--compressed','/sdcard/lumen-test.xml',check=False);xml=adb('shell','cat','/sdcard/lumen-test.xml',check=False)\n\
+        \ try:return ET.fromstring(xml[xml.index('<?xml'):xml.rindex('</hierarchy>')+len('</hierarchy>')])\n except Exception as error:\n  print('UI_DUMP_FAILURE '+json.dumps({'error':str(error),'tool':diagnostic[:300],'xmlPrefix':xml[:300]}),flush=True);raise\
+        \ RuntimeError('UI XML did not parse; no UI conclusion is available')\ndef bounds(node):\n a=list(map(int,re.findall(r'\\d+',node.get('bounds',''))));assert len(a)==4;return a\ndef tap(node):\n\
+        \ a=bounds(node);adb('shell','input','tap',str((a[0]+a[2])//2),str((a[1]+a[3])//2));time.sleep(.7)\ndef click_text(root,text):\n matches=[n for n in root.iter('node')if n.get('text','').casefold()==text.casefold()\
+        \ or n.get('content-desc','').casefold()==text.casefold()]\n if not matches:raise RuntimeError('Expected UI control not found: '+text)\n tap(matches[0])\ndef screenshot(label):\n shot=subprocess.check_output(['adb','exec-out','screencap','-p']);(OUT/(label+'.png')).write_bytes(shot);print('CASE_SCREENSHOT_START\
+        \ '+label,flush=True);print(base64.b64encode(shot).decode(),flush=True);print('CASE_SCREENSHOT_END '+label,flush=True)\ndef start():\n adb('shell','pm','grant',APP,'android.permission.POST_NOTIFICATIONS');adb('shell','am','start','-W','-n',APP+'/.MainActivity');time.sleep(9);return\
+        \ None\ndef coords(x,y):\n adb('shell','input','tap',str(x),str(y));time.sleep(1.7)\ndef day(tree):\n coords(136,828);return None\ndef toggle(tree):\n coords(63,436);return None\ndef native_rows(key):\n\
+        \ root=ARCHIVE+'/'+key+'/working';head=adb('shell','cat',root+'/selected.head',check=False).strip()\n if not re.fullmatch('[0-9a-f]{64}',head):return None\n b=subprocess.check_output(['adb','exec-out','cat',root+'/'+head+'.work']);assert\
+        \ hashlib.sha256(b).hexdigest()==head;offset=0\n def integer():\n  nonlocal offset\n  n=struct.unpack_from('>i',b,offset)[0];offset+=4;return n\n def string():\n  nonlocal offset\n  n=integer();assert\
+        \ 0<=n<=16000000;v=b[offset:offset+n*2].decode('utf-16be');offset+=n*2;return v\n assert integer()==0x4c575331 and string()==key;count=integer();result={}\n for _ in range(count):k=string();result[k]=string()\n\
+        \ assert offset==len(b);return result\n\nassert adb('shell','getprop','ro.kernel.qemu').strip()=='1'and adb('shell','id','-u').strip()=='0'\nadb('shell','wm','size','430x900');adb('shell','wm','density','160');start();stop();owner=adb('shell','stat','-c','%u:%g',ROOT).strip();assert\
+        \ re.fullmatch(r'\\d+:\\d+',owner);base=OUT/'baseline';pull(base)\nresults=[]\nfor number,language in enumerate(['en','de','ar']):\n uid='synthetic118_'+str(number);key='lumen_v3_'+uid;jk='lumen_watch_isolated_boundary_'+key\n\
+        \ fixture={'lumen_lang':language,'lumen_user':uid,'lumen_session':'{malformed preserved session' if number==1 else json.dumps({'user':{'id':uid},'access_token':'synthetic-not-a-credential','expires_at':9999999999}),key:json.dumps({'name':'Preserved\
+        \ old device plan','goals':[],'daily':[],'finance':{'income':444}}),jk:'{broken-preserved-old-journal',key+'_before_restore':'old original backup','lumen_v3_unselected':'unselected-original','synthetic_padding':'A'*(6*1024*1024)}\n\
+        \ stop();local=OUT/(language+'-input');shutil.copytree(base,local)\n with plyvel.DB(str(local),create_if_missing=False)as db:\n  previous=strings(db)\n  with db.write_batch(sync=True)as batch:\n\
+        \   for k in previous:batch.delete(PREFIX+encoded(k));batch.delete(PREFIX+b'\\0'+k.encode('utf-16le'))\n   size=0\n   for k,v in fixture.items():kb=encoded(k);vb=encoded(v);batch.put(PREFIX+kb,vb);size+=len(kb)+len(vb)\n\
+        \   batch.put(b'META:'+ORIGIN,b'\\10'+varint(int(time.time()*1e6)+11644473600000000)+b'\\20'+varint(size))\n with plyvel.DB(str(local),create_if_missing=False)as db:assert strings(db)==fixture\n\
+        \ adb('shell','rm','-rf',ROOT);adb('push',str(local),ROOT);adb('shell','chown','-R',owner,ROOT);adb('shell','restorecon','-RF',ROOT)\n adb('shell','mkdir','-p',ARCHIVE);adb('shell','sh','-c','echo\
+        \ synthetic-archive-original > '+ARCHIVE+'/preserved-original');adb('shell','chown','-R',owner,ARCHIVE)\n archiveOriginal=adb('shell','cat',ARCHIVE+'/preserved-original');adb('logcat','-c');row={'case':language+'-already-full-old-broken-journal','actualAndroid':True,'originalBytes':size,'over5MiBBeforeStart':size>5*1024*1024}\n\
+        \ try:\n  for restart in range(3):\n   start();time.sleep(22 if restart==0 and number!=1 else 1);screenshot(language+'-cloud-login-restart'+str(restart));\n   if restart==0:\n    root=dump();click_text(root,'Fehlerbericht');root=dump();texts=[n.get('text','')\
+        \ for n in root.iter('node')];assert any('Lumen Diagnosebericht v1' in x and '1.6.99 (118)' in x for x in texts);assert not any(uid in x or 'synthetic-not-a-credential' in x for x in texts);assert\
+        \ not any('js-error' in x or 'native-exception' in x for x in texts);screenshot(language+'-diagnostic-preview');click_text(root,'Bericht kopieren');root=dump();assert any(n.get('text','').casefold()=='bericht\
+        \ kopieren' for n in root.iter('node'));screenshot(language+'-diagnostic-copied');click_text(root,'Schliessen');row['diagnosticPreviewAndExplicitCopy']=True\n   stop();afterDir=OUT/(language+'-restart'+str(restart));pull(afterDir)\n\
+        \   with plyvel.DB(str(afterDir),create_if_missing=False)as db:after=strings(db)\n   assert after==fixture,'Existing browser keys changed';assert adb('shell','cat',ARCHIVE+'/preserved-original')==archiveOriginal\n\
+        \  row.update({'cloudLoginPixelReviewRequired':True,'oldStorageEntirelyIdentical':True,'oldNativeArchivePreserved':True,'threeColdStarts':True,'pass':True})\n except Exception as e:row.update({'pass':False,'failure':str(e)});screenshot(language+'-failure')\n\
+        \ row['consoleErrors']=[x for x in adb('logcat','-d','-v','brief').splitlines()if 'INFO:CONSOLE'in x or ('FATAL EXCEPTION'in x and 'UiAutomation'not in x)];row['pass']=row['pass']and not row['consoleErrors'];results.append(row);print('CASE_RESULT\
+        \ '+json.dumps(row),flush=True)\nprint('CANDIDATE118_RESULTS '+json.dumps(results),flush=True);assert all(x['pass']for x in results)\n\nLUMEN_SYNTHETIC_PYTHON\n\nmkdir -p /tmp/long118/classes /tmp/long118/dex\n\
+        unzip -p candidate118.apk classes.dex > /tmp/long118/production.dex\n# javac uses a class stub only at compile time; D8 gets solely the synthetic Activity class.\nmkdir -p /tmp/long118/stub/de/lumen/planner\n\
+        cat > /tmp/long118/stub/de/lumen/planner/MainActivity.java <<'LUMEN_STUB'\npackage de.lumen.planner;public class MainActivity extends android.app.Activity{public void onCreate(android.os.Bundle\
+        \ s){super.onCreate(s);}}\nLUMEN_STUB\ncat > /tmp/long118/LongReportActivity.java <<'LUMEN_LONG_JAVA'\npackage de.lumen.qualification118;\nimport android.os.*;import java.lang.reflect.*;\npublic\
+        \ class LongReportActivity extends de.lumen.planner.MainActivity {\n public void onCreate(Bundle state){super.onCreate(state);new Handler(Looper.getMainLooper()).postDelayed(()->{try{Field field=de.lumen.planner.MainActivity.class.getDeclaredField(\"\
+        diagnostics\");field.setAccessible(true);Object diag=field.get(this);Method event=diag.getClass().getMethod(\"event\",String.class,String.class,int.class,int.class);for(int n=0;n<64;n++)event.invoke(diag,\"\
+        cloud-ok\",\"cloud.js\",n+1,200);Method show=de.lumen.planner.MainActivity.class.getDeclaredMethod(\"showDiagnostics\");show.setAccessible(true);show.invoke(this);}catch(Exception e){throw new RuntimeException(e);}},11000);}\n\
+        }\nLUMEN_LONG_JAVA\njavac -source 8 -target 8 -bootclasspath \"$ANDROID_HOME/platforms/android-35/android.jar\" -d /tmp/long118/classes /tmp/long118/stub/de/lumen/planner/MainActivity.java /tmp/long118/LongReportActivity.java\n\
+        java -cp \"$d8_jar\" com.android.tools.r8.D8 --min-api 26 --lib \"$ANDROID_HOME/platforms/android-35/android.jar\" --output /tmp/long118/dex /tmp/long118/classes/de/lumen/qualification118/LongReportActivity.class\n\
+        cat > /tmp/long118/AndroidManifest.xml <<'LUMEN_LONG_MANIFEST'\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"de.lumen.qualification118\"><uses-sdk android:minSdkVersion=\"\
+        26\" android:targetSdkVersion=\"35\"/><uses-permission android:name=\"android.permission.INTERNET\"/><application android:theme=\"@android:style/Theme.Material.Light.NoActionBar\"><activity android:name=\"\
+        .LongReportActivity\" android:exported=\"true\"/></application></manifest>\nLUMEN_LONG_MANIFEST\nbt=$(dirname \"$(dirname \"$d8_jar\")\")\n\"$bt/aapt2\" link -I \"$ANDROID_HOME/platforms/android-35/android.jar\"\
+        \ --manifest /tmp/long118/AndroidManifest.xml -o /tmp/long118/manifest.apk\npython3 - <<'LUMEN_LONG_ZIP'\nimport zipfile,hashlib\nwith zipfile.ZipFile('candidate118.apk') as src,zipfile.ZipFile('/tmp/long118/manifest.apk')\
+        \ as man,zipfile.ZipFile('/tmp/long118/fixture.apk','w') as dst:\n for info in src.infolist():\n  if info.filename.startswith('META-INF/'):continue\n  data=man.read('AndroidManifest.xml') if info.filename=='AndroidManifest.xml'\
+        \ else src.read(info.filename)\n  dst.writestr(info,data)\n dst.write('/tmp/long118/dex/classes.dex','classes2.dex')\nwith zipfile.ZipFile('candidate118.apk') as a,zipfile.ZipFile('/tmp/long118/fixture.apk')\
+        \ as b:\n assert a.read('classes.dex')==b.read('classes.dex')\n assert all(a.read(n)==b.read(n) for n in a.namelist() if n.startswith('assets/'))\nprint('LONG118_UNCHANGED_PRODUCTION_CLASSES_AND_ASSETS',flush=True)\n\
+        LUMEN_LONG_ZIP\nkeytool -genkeypair -keystore /tmp/long118/test.jks -storepass android -keypass android -alias test -keyalg RSA -validity 1 -dname CN=SyntheticTest\n\"$bt/zipalign\" -f 4 /tmp/long118/fixture.apk\
+        \ /tmp/long118/fixture-aligned.apk\n\"$bt/apksigner\" sign --ks /tmp/long118/test.jks --ks-pass pass:android /tmp/long118/fixture-aligned.apk\n\ncat > /tmp/long118-ui.py <<'LUMEN_LONG_PYTHON'\n\
+        import subprocess,time,re,xml.etree.ElementTree as ET,json,base64\nfrom pathlib import Path\ndef adb(*args):return subprocess.check_output(['adb',*args]).decode(errors='replace')\ndef dump():\n\
+        \ adb('shell','uiautomator','dump','/sdcard/long118.xml');return ET.fromstring(adb('shell','cat','/sdcard/long118.xml'))\ndef control(root,text):\n n=next(n for n in root.iter('node') if n.get('text','').casefold()==text.casefold());v=list(map(int,re.findall(r'\\\
+        d+',n.get('bounds'))));assert v[2]>v[0]and v[3]>v[1];return v\ndef shot(name):\n image=subprocess.check_output(['adb','exec-out','screencap','-p']);print('CASE_SCREENSHOT_START '+name,flush=True);print(base64.b64encode(image).decode(),flush=True);print('CASE_SCREENSHOT_END\
+        \ '+name,flush=True)\nresults=[]\nfor scale in ['1.0','1.5','2.0']:\n adb('shell','am','force-stop','de.lumen.qualification118');adb('shell','wm','size','360x640');adb('shell','wm','density','160');adb('shell','settings','put','system','font_scale',scale);adb('shell','am','start','-W','-n','de.lumen.qualification118/.LongReportActivity');time.sleep(17)\n\
+        \ root=dump();copy=control(root,'Bericht kopieren');close=control(root,'Schliessen');assert copy[3]<640 and close[3]<640\n text=' '.join(n.get('text','')for n in root.iter('node'));assert '1.6.99\
+        \ (118)'in text and text.count('cloud-ok')==64\n shot('long118-font'+scale+'-top');adb('shell','input','swipe','180','560','180','330','600');root=dump();assert control(root,'Bericht kopieren')==copy;shot('long118-font'+scale+'-scrolled')\n\
+        \ adb('shell','input','tap',str((copy[0]+copy[2])//2),str((copy[1]+copy[3])//2));time.sleep(1);shot('long118-font'+scale+'-copied');root=dump();assert control(root,'Schliessen')==close\n adb('shell','input','tap',str((close[0]+close[2])//2),str((close[1]+close[3])//2));time.sleep(1);assert\
+        \ not any(n.get('text','').casefold()=='bericht kopieren'for n in dump().iter('node'));results.append({'fontScale':scale,'64Events':True,'copyPinned':True,'copyClicked':True,'closeClicked':True,'screen':'360x640','productionClassDexUnchanged':True})\n\
+        print('LONG118_RESULT '+json.dumps(results),flush=True)\n\nLUMEN_LONG_PYTHON\n"
+    - name: Exact signed APK native cache and old full-browser startup
+      uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+      with:
+        api-level: '35'
+        target: google_apis
+        arch: x86_64
+        cores: '2'
+        ram-size: 2048M
+        disk-size: 4096M
+        emulator-boot-timeout: '600'
+        disable-animations: 'true'
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+        script: bash /tmp/lumen-candidate118-smoke.sh
